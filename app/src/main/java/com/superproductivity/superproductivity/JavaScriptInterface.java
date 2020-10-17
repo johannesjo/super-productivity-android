@@ -16,23 +16,9 @@ import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
-
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static com.superproductivity.superproductivity.Google.RC_SIGN_IN;
-
 public class JavaScriptInterface {
     private FullscreenActivity mContext;
     private WebView webView;
-    private Google g;
 
     /**
      * Instantiate the interface and set the context
@@ -44,13 +30,6 @@ public class JavaScriptInterface {
 
     void onActivityResult(int requestCode, int resultCode, Intent data) {
 //        Toast.makeText(mContext, "JavaScriptInterface onActivityResult", Toast.LENGTH_SHORT).show();
-
-        if (requestCode == RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            _handleSignInResult(task);
-        }
     }
 
 
@@ -117,57 +96,7 @@ public class JavaScriptInterface {
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void triggerGetGoogleToken() {
-        g = new Google();
-        g.load(mContext);
-        g.signIn(mContext);
     }
-
-
-    private void _handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            new GetAccessToken(mContext, account).execute();
-            // Signed in successfully, show authenticated UI.
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w("TW", "signInResult:failed code=" + e.getStatusCode());
-            _callJavaScriptFunction("window.googleGetTokenErrorCallback(\'" + e.getStatusCode() + "\')");
-        }
-    }
-
-    private static class GetAccessToken extends AsyncTask<Void, Void, String> {
-        private WeakReference<FullscreenActivity> activityReference;
-        private GoogleSignInAccount account;
-
-        // only retain a weak reference to the activity
-        GetAccessToken(FullscreenActivity context, GoogleSignInAccount accountIn) {
-            activityReference = new WeakReference<>(context);
-            account = accountIn;
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            FullscreenActivity activity = activityReference.get();
-            String accessToken = null;
-            try {
-                accessToken = GoogleAuthUtil.getToken(activity, account.getEmail(), "oauth2:profile email");
-                activity.callJavaScriptFunction("window.googleGetTokenSuccessCallback(\'" + accessToken + "\')");
-                Log.d("TW", "accessToken " + accessToken);
-            } catch (IOException | GoogleAuthException e) {
-                e.printStackTrace();
-            }
-            return accessToken;
-
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            // get a reference to the activity if it is still there
-            FullscreenActivity activity = activityReference.get();
-        }
-    }
-
 
     private void _callJavaScriptFunction(final String script) {
         mContext.callJavaScriptFunction(script);
