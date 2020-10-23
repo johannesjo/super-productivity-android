@@ -109,6 +109,9 @@ public class FullscreenActivity extends AppCompatActivity {
             jsi = new JavaScriptInterface(this, wv);
             wv.addJavascriptInterface(jsi, "SUPAndroid");
 
+            // TODO only set this for fdroid version
+            wv.addJavascriptInterface(jsi, "SUPFDroid");
+
             // needs to come last for some settings to take effect
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.DONUT && 0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE)) {
                 wv.loadUrl("https://test-app.super-productivity.com");
