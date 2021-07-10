@@ -121,7 +121,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
             boolean IS_DEBUG = 0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE);
 
-            jsi = new JavaScriptInterface(this, wv, IS_DEBUG);
+            jsi = new JavaScriptInterface(this, wv);
             wv.addJavascriptInterface(jsi, "SUPAndroid");
 
             if (BuildConfig.FLAVOR.equals("fdroid")) {
@@ -169,5 +169,14 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (wv.canGoBack()) {
+            wv.goBack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
