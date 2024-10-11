@@ -1,3 +1,5 @@
+# DEPRECATED since the project has now been merged with johannesjo/super-productivity
+
 # super-productivity-android
 
 Android App for Super Productivity (https://super-productivity.com/).
